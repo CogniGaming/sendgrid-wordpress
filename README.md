@@ -47,6 +47,12 @@ Warning! When you activate SendGrid management for a subsite, that site will not
 
 If you already had the plugin installed in a Multisite environment and you update to versions after 1.9.0 you may need to reconfigure your plugin.
 
+## SandBox Mode
+
+To test the SendGrid API but not actually send emails you can use the Sandbox Mode. In wp-config.php define the following constant:
+```php
+define( 'ENV_DEVELOPMENT', true );
+```
 ## Installation
 
 Requirements:
@@ -223,6 +229,14 @@ For the API Key used for sending emails (the General tab):
 For the API Key used for contact upload (the Subscription Widget tab):
  - Full Access to Marketing Campaigns.
 
+### How do I see a log of emails that have been sent?
+
+You can see recently sent emails in your [Activity Feed](https://app.sendgrid.com/email_activity) within Sendgrid.
+
+To view the emails in Wordpress you can use one of these email logging plugins:
+
+ - [WP Mail Logging](https://wordpress.org/plugins/wp-mail-logging/)
+ - [Email Log](https://wordpress.org/plugins/email-log/)
 
 ### Can I disable the opt-in email?
 

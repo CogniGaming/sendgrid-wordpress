@@ -1,4 +1,7 @@
 <?php
+
+require_once plugin_dir_path( __FILE__ ) . 'class-sendgrid-tools.php';
+
 if ( ! class_exists( 'SGVirtualPage' ) )
 {
   class SGVirtualPage
@@ -24,7 +27,7 @@ if ( ! class_exists( 'SGVirtualPage' ) )
       $this->dategmt  = isset( $args['date'] ) ? $args['date'] : current_time( 'mysql', 1 );
       $this->type     = isset( $args['type'] ) ? $args['type'] : 'page';
 
-      add_filter( 'the_posts', array( &$this, 'virtualPage' ) );
+      add_filter( 'the_posts', array( $this, 'virtualPage' ) );
     }
 
     /**
@@ -35,6 +38,7 @@ if ( ! class_exists( 'SGVirtualPage' ) )
      */
     public function virtualPage( $posts )
     {
+		
       global $wp, $wp_query;
 
       $post = new stdClass;
@@ -59,25 +63,26 @@ if ( ! class_exists( 'SGVirtualPage' ) )
       $post->post_parent            = 0;
       $post->guid                   = get_home_url('/' . $this->slug);
       $post->menu_order             = 0;
-      $post->post_tyle              = $this->type;
+      $post->post_type              = $this->type;
       $post->post_mime_type         = '';
       $post->comment_count          = 0;
 
       $posts = array( $post );
-
-      $wp_query->is_page      = TRUE;
-      $wp_query->is_singular  = TRUE;
-      $wp_query->is_home      = FALSE;
-      $wp_query->is_archive   = FALSE;
-      $wp_query->is_category  = FALSE;
-
+		
+      // reset wp_query properties to simulate a found page
+      $wp_query->is_page     = true;
+      $wp_query->is_singular = true;
+      $wp_query->is_home     = false;
+      $wp_query->is_archive  = false;
+      $wp_query->is_category = false;
       unset( $wp_query->query['error'] );
-      $wp_query->query_vars['error']  = '';
-      $wp_query->is_404               = FALSE;
+      $wp_query->query_vars['error'] = '';
+      $wp_query->is_404              = false;
 
-      remove_filter( 'the_posts', array( &$this, 'virtualPage' ) );
-
-      return $posts;
+		
+		error_log(json_encode($posts));
+		
+      return ( $posts );
     }
   }
 }
@@ -91,11 +96,11 @@ function sg_create_subscribe_general_error_page()
 {
   $url = basename( $_SERVER['REQUEST_URI'] );
 
-  if ( $url == 'sg-error' )
+  if ( $url == 'emails-error' )
   {
-    $args = array('slug' => 'sg-error',
-              'title' => 'Subscribe error',
-              'content' => 'Something went wrong while trying to send information.' );
+    $args = array('slug' => 'emails-error',
+              'title' => 'Subscription Error',
+              'content' => '<h1>Subscription Error</h1><p>Something went wrong while trying to send information.</p>' );
     $pg = new SGVirtualPage( $args );
   }
 }
@@ -109,11 +114,11 @@ function sg_create_subscribe_invalid_token_error_page()
 {
   $url = basename( $_SERVER['REQUEST_URI'] );
 
-  if ( $url == 'sg-subscription-invalid-token' )
+  if ( $url == 'emails-invalid-token' )
   {
-    $args = array( 'slug' => 'sg-subscription-invalid-token',
-              'title' => 'Subscribe error',
-              'content' => 'Token is invalid, you are not subscribed to our newsletter.' );
+    $args = array( 'slug' => 'emails-invalid-token',
+              'title' => 'Subscription Error - Invalid Token',
+              'content' => '<h1>Subscription Error - Invalid Token</h1><p>Token is invalid, you are not subscribed to our newsletter.</p>' );
     $pg = new SGVirtualPage( $args );
   }
 }
@@ -127,11 +132,11 @@ function sg_create_subscribe_missing_token_error_page()
 {
   $url = basename( $_SERVER['REQUEST_URI'] );
 
-  if ( $url == 'sg-subscription-missing-token' )
+  if ( $url == 'emails-missing-token' )
   {
-    $args = array( 'slug' => 'sg-subscription-missing-token',
-              'title' => 'Subscribe error',
-              'content' => 'Token is missing, you are not subscribed to our newsletter.' );
+    $args = array( 'slug' => 'emails-missing-token',
+              'title' => 'Subscription Error',
+              'content' => '<h1>Token Missing</h1><p>Token is missing, you are not subscribed to our newsletter.</p>' );
     $pg = new SGVirtualPage( $args );
   }
 }
@@ -145,11 +150,30 @@ function sg_create_subscribe_success_page()
 {
   $url = basename( $_SERVER['REQUEST_URI'] );
 
-  if ( $url == 'sg-subscription-success' )
+  if ( $url == 'emails-subscribed' )
   {
-    $args = array( 'slug' => 'sg-subscription-success',
-          'title' => 'Subscribe success',
-          'content' => 'You have been successfully subscribed to our newsletter.' );
+    $args = array( 'slug' => 'emails-subscribed',
+          'title' => 'Subscribed to ' . get_option( 'blogname' ),
+          'content' => '<h1>Success</h1><p>You have been successfully subscribed to our newsletter.</p>' );
+    $pg = new SGVirtualPage( $args );
+  }
+}
+
+/**
+ * Filter to create subscribe success page
+ *
+ * @return  void
+ */
+function sg_create_validation_required_page()
+{
+  $url = basename( $_SERVER['REQUEST_URI'] );
+
+  if ( $url == 'email-validation-required' )
+  {
+	$content = stripslashes( Sendgrid_Tools::get_mc_form_subscribe_message() );
+    $args = array( 'slug' => 'email-validation-required',
+          'title' => 'Subscribed to ' . get_option( 'blogname' ),
+          'content' => '<h1>Success</h1><p>' . $content . '</p>' );
     $pg = new SGVirtualPage( $args );
   }
 }

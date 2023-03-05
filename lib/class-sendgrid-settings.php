@@ -49,7 +49,8 @@ class Sendgrid_Settings {
       add_action( 'network_admin_menu', array( __CLASS__, 'add_network_settings_menu' ) );
     }
     // Add SendGrid Help contextual menu in the settings page
-    add_filter( 'contextual_help', array( __CLASS__, 'show_contextual_help' ), 10, 3 );
+    add_action( 'load-toplevel_page_sendgrid-settings', array( __CLASS__, 'add_contextual_help_tab' ) );
+    add_action( 'load-toplevel_page_sendgrid-statistics', array( __CLASS__, 'add_contextual_help_tab' ) );
     // Add SendGrid javascripts in header
     add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_headers' ) );
   }
@@ -90,21 +91,20 @@ class Sendgrid_Settings {
 
   /**
    * Add SendGrid Help contextual menu in the settings page
-   *
-   * @param   mixed   $contextual_help    contextual help
-   * @param   integer $screen_id          screen id
-   * @param   integer $screen             screen
-   *
-   * @return  string
+   *       
+   * @return  void
    */
-  public static function show_contextual_help( $contextual_help, $screen_id, $screen )
-  {
-    if ( SENDGRID_PLUGIN_STATISTICS == $screen_id or SENDGRID_PLUGIN_SETTINGS == $screen_id )
-    {
-      $contextual_help = file_get_contents( dirname( __FILE__ ) . '/../view/sendgrid_contextual_help.php' );
-    }
+  public static function add_contextual_help_tab(){
 
-    return $contextual_help;
+    $screen = get_current_screen();
+
+    $screen->add_help_tab( [
+        'title' => 'SendGrid Help',
+        'id' => 'sendgrid-help',
+        'content' => file_get_contents( dirname( __FILE__ ) . '/../view/sendgrid_contextual_help.php' ),
+        'callback' => false,
+        'priority' => 10
+    ] );
   }
 
   /**
@@ -163,18 +163,6 @@ class Sendgrid_Settings {
     $mc_opt_incl_fname_lname      = stripslashes( Sendgrid_Tools::get_mc_opt_incl_fname_lname() );
     $mc_opt_req_fname_lname       = stripslashes( Sendgrid_Tools::get_mc_opt_req_fname_lname() );
     $mc_signup_confirmation_page  = stripslashes( Sendgrid_Tools::get_mc_signup_confirmation_page() );
-
-    // input padding
-    $mc_signup_input_padding_top      = stripslashes( Sendgrid_Tools::get_mc_input_padding_by_position( 'top' ) );
-    $mc_signup_input_padding_right    = stripslashes( Sendgrid_Tools::get_mc_input_padding_by_position( 'right' ) );
-    $mc_signup_input_padding_bottom   = stripslashes( Sendgrid_Tools::get_mc_input_padding_by_position( 'bottom' ) );
-    $mc_signup_input_padding_left     = stripslashes( Sendgrid_Tools::get_mc_input_padding_by_position( 'left' ) );
-
-    // button padding
-    $mc_signup_button_padding_top     = stripslashes( Sendgrid_Tools::get_mc_button_padding_by_position( 'top' ) );
-    $mc_signup_button_padding_right   = stripslashes( Sendgrid_Tools::get_mc_button_padding_by_position( 'right' ) );
-    $mc_signup_button_padding_bottom  = stripslashes( Sendgrid_Tools::get_mc_button_padding_by_position( 'bottom' ) );
-    $mc_signup_button_padding_left    = stripslashes( Sendgrid_Tools::get_mc_button_padding_by_position( 'left' ) );
 
     $mc_signup_email_subject = Sendgrid_Tools::get_mc_signup_email_subject();
     if ( false == $mc_signup_email_subject ) {
@@ -339,6 +327,14 @@ class Sendgrid_Settings {
     }
     $mc_signup_subscribe_label = stripslashes( $mc_signup_subscribe_label );
 
+    $mc_form_title = stripslashes( Sendgrid_Tools::get_mc_form_title() );
+    $mc_form_error_message = stripslashes( Sendgrid_Tools::get_mc_form_error_message() );
+    $mc_email_error_message = stripslashes( Sendgrid_Tools::get_mc_form_email_error_message() );
+    $mc_fname_error_message = stripslashes( Sendgrid_Tools::get_mc_form_fname_error_message() );
+    $mc_sname_error_message = stripslashes( Sendgrid_Tools::get_mc_form_sname_error_message() );
+    $mc_form_subscribe_message = stripslashes( Sendgrid_Tools::get_mc_form_subscribe_message() );
+    $mc_form_message = stripslashes( Sendgrid_Tools::get_mc_form_message() );
+   
     $is_env_send_method                  = defined( 'SENDGRID_SEND_METHOD' );
     $is_env_api_key                      = defined( 'SENDGRID_API_KEY' );
     $is_env_port                         = defined( 'SENDGRID_PORT' );
@@ -357,6 +353,14 @@ class Sendgrid_Settings {
     $is_env_mc_first_name_label          = defined( 'SENDGRID_MC_FIRST_NAME_LABEL' );
     $is_env_mc_last_name_label           = defined( 'SENDGRID_MC_LAST_NAME_LABEL' );
     $is_env_mc_subscribe_label           = defined( 'SENDGRID_MC_SUBSCRIBE_LABEL' );
+    $is_env_mc_form_message              = defined( 'SENDGRID_MC_FORM_MESSAGE' );
+    $is_env_mc_form_title                = defined( 'SENDGRID_MC_FORM_TITLE' );
+    $is_env_mc_form_error_message        = defined( 'SENDGRID_MC_FORM_ERROR_MESSAGE' );
+    $is_env_mc_form_email_error_message  = defined( 'SENDGRID_MC_FORM_EMAIL_ERROR_MESSAGE' );
+    $is_env_mc_form_fname_error_message  = defined( 'SENDGRID_MC_FORM_FNAME_ERROR_MESSAGE' );
+    $is_env_mc_form_sname_error_message  = defined( 'SENDGRID_MC_FORM_SNAME_ERROR_MESSAGE' );
+    $is_env_mc_form_subscribe_message    = defined( 'SENDGRID_MC_FORM_TITLE' );
+
 
     if ( $response and $status != 'error' ) {
       $message  = $response['message'];
@@ -602,39 +606,36 @@ class Sendgrid_Settings {
       $subscribe_label = htmlspecialchars( $params['sendgrid_mc_subscribe_label'], ENT_QUOTES, 'UTF-8' );
       Sendgrid_Tools::set_mc_subscribe_label( $subscribe_label );
     }
-    // input padding
-    if ( isset( $params['sendgrid_mc_input_padding_top'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_input_padding_top'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_input_padding( 'top', $padding );
+    
+    // widget form configuration
+    // labels
+    if ( isset( $params['sendgrid_mc_form_title'] ) and ! defined( 'SENDGRID_MC_FORM_TITLE' ) ) {
+      $form_title = htmlspecialchars( $params['sendgrid_mc_form_title'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_title( $form_title );
     }
-    if ( isset( $params['sendgrid_mc_input_padding_right'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_input_padding_right'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_input_padding( 'right', $padding );
+    if ( isset( $params['sendgrid_mc_form_message'] ) and ! defined( 'SENDGRID_MC_FORM_MESSAGE' ) ) {
+      $form_message = htmlspecialchars( $params['sendgrid_mc_form_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_message( $form_message );
     }
-    if ( isset( $params['sendgrid_mc_input_padding_bottom'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_input_padding_bottom'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_input_padding( 'bottom', $padding );
+    if ( isset( $params['sendgrid_mc_form_error_message'] ) and ! defined( 'SENDGRID_MC_FORM_ERROR_MESSAGE' ) ) {
+      $form_error_message = htmlspecialchars( $params['sendgrid_mc_form_error_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_error_message( $form_error_message );
     }
-    if ( isset( $params['sendgrid_mc_input_padding_left'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_input_padding_left'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_input_padding( 'left', $padding );
+    if ( isset( $params['sendgrid_mc_email_error_message'] ) and ! defined( 'SENDGRID_MC_EMAIL_ERROR_MESSAGE' ) ) {
+      $email_error_message = htmlspecialchars( $params['sendgrid_mc_email_error_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_email_error_message( $email_error_message );
     }
-    // button padding
-    if ( isset( $params['sendgrid_mc_button_padding_top'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_button_padding_top'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_button_padding( 'top', $padding );
-    }
-    if ( isset( $params['sendgrid_mc_button_padding_right'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_button_padding_right'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_button_padding( 'right', $padding );
-    }
-    if ( isset( $params['sendgrid_mc_button_padding_bottom'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_button_padding_bottom'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_button_padding( 'bottom', $padding );
-    }
-    if ( isset( $params['sendgrid_mc_button_padding_left'] ) ) {
-      $padding = htmlspecialchars( $params['sendgrid_mc_button_padding_left'], ENT_QUOTES, 'UTF-8' );
-      Sendgrid_Tools::set_mc_button_padding( 'left', $padding );
+	if ( isset( $params['sendgrid_mc_fname_error_message'] ) and ! defined( 'SENDGRID_MC_FNAME_ERROR_MESSAGE' ) ) {
+      $fname_error_message = htmlspecialchars( $params['sendgrid_mc_fname_error_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_fname_error_message( $fname_error_message );
+    }	
+    if ( isset( $params['sendgrid_mc_sname_error_message'] ) and ! defined( 'SENDGRID_MC_SNAME_ERROR_MESSAGE' ) ) {
+      $sname_error_message = htmlspecialchars( $params['sendgrid_mc_sname_error_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_sname_error_message( $sname_error_message );
+    }	  	  
+    if ( isset( $params['sendgrid_mc_form_subscribe_message'] ) and ! defined( 'SENDGRID_MC_FORM_SUBSCRIBE_MESSAGE' ) ) {
+      $form_subscribe_message = htmlspecialchars( $params['sendgrid_mc_form_subscribe_message'], ENT_QUOTES, 'UTF-8' );
+      Sendgrid_Tools::set_mc_form_subscribe_message( $form_subscribe_message );
     }
 
     if ( isset( $response ) and $response['status'] == 'error' ) {

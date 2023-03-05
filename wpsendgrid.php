@@ -3,7 +3,7 @@
 Plugin Name: SendGrid
 Plugin URI: http://wordpress.org/plugins/sendgrid-email-delivery-simplified/
 Description: Email Delivery. Simplified. SendGrid's cloud-based email infrastructure relieves businesses of the cost and complexity of maintaining custom email systems. SendGrid provides reliable delivery, scalability and real-time analytics along with flexible APIs that make custom integration a breeze.
-Version: 1.11.8
+Version: 2.0.0
 Author: SendGrid
 Author URI: http://sendgrid.com
 Text Domain: sendgrid-email-delivery-simplified
@@ -58,6 +58,7 @@ require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-mc-optin.php';
 require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-statistics.php';
 require_once plugin_dir_path( __FILE__ ) . 'lib/sendgrid/sendgrid-wp-mail.php';
 require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-nlvx-widget.php';
+require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-nlvx-shortcode.php';
 require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-virtual-pages.php';
 require_once plugin_dir_path( __FILE__ ) . 'lib/class-sendgrid-filters.php';
 
@@ -74,9 +75,13 @@ if ( isset( $_POST['sg_dismiss_widget_notice'] ) ) {
 }
 
 // Display widget notice
-if ( 'true' != Sendgrid_Tools::get_mc_widget_notice_dismissed() and
-  ( !is_multisite() or ( is_multisite() and ( get_option( 'sendgrid_can_manage_subsite' ) or is_main_site() ) ) ) ) {
-  add_action( 'admin_notices', 'sg_subscription_widget_admin_notice' );
+if ( is_admin() ) {
+
+  // Display widget notice
+  if ( 'true' != Sendgrid_Tools::get_mc_widget_notice_dismissed() and
+       ( !is_multisite() or ( is_multisite() and ( get_option( 'sendgrid_can_manage_subsite' ) or is_main_site() ) ) ) ) {
+    add_action( 'admin_notices', 'sg_subscription_widget_admin_notice' );
+  }
 }
 
 // Initialize SendGrid Settings

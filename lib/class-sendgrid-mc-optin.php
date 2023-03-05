@@ -56,7 +56,7 @@ class Sendgrid_OptIn_API_Endpoint{
     $token = $wp->query_vars['token'];
     if ( ! $token )
     {
-      wp_redirect( 'sg-subscription-missing-token' );
+      wp_redirect( 'emails-missing-token' );
       exit();
     }
 
@@ -68,7 +68,7 @@ class Sendgrid_OptIn_API_Endpoint{
       ! isset( $transient['first_name'] ) or
       ! isset( $transient['last_name'] ) )
     {
-      wp_redirect( 'sg-subscription-invalid-token' );
+      wp_redirect( 'emails-invalid-token' );
       exit();
     }
 
@@ -84,7 +84,7 @@ class Sendgrid_OptIn_API_Endpoint{
       if ( $page == false ) {
         Sendgrid_Tools::set_transient_sendgrid( $token, null );
 
-        wp_redirect( 'sg-subscription-success' );
+        wp_redirect( 'emails-subscribed' );
         exit();
       } 
       else 
@@ -99,7 +99,7 @@ class Sendgrid_OptIn_API_Endpoint{
     }
     else
     {
-      wp_redirect( 'sg-error' );
+      wp_redirect( 'emails-error' );
       exit();
     }
   }
@@ -113,6 +113,7 @@ class Sendgrid_OptIn_API_Endpoint{
    * @return bool
    */
   public static function send_confirmation_email( $email, $first_name = '', $last_name = '', $from_settings = false ) {
+  
     $subject = htmlspecialchars_decode( Sendgrid_Tools::get_mc_signup_email_subject() );
     $content = htmlspecialchars_decode( Sendgrid_Tools::get_mc_signup_email_content() );
     $content_text = htmlspecialchars_decode( Sendgrid_Tools::get_mc_signup_email_content_text() );
@@ -147,9 +148,9 @@ class Sendgrid_OptIn_API_Endpoint{
     $headers = new SendGrid\Email();
     $headers->addSubstitution( '%confirmation_link%', array( $confirmation_link ) )
             ->addCategory( 'wp_sendgrid_subscription_widget' );
-
+	  
     add_filter( 'sendgrid_mail_text', function() use ( &$content_text ) { return $content_text; } );
-
+	  
     $result = wp_mail( $to, $subject, $content, $headers );
 
     return $result;
@@ -273,6 +274,9 @@ new Sendgrid_OptIn_API_Endpoint();
 
 add_action( 'init', 'sg_create_subscribe_general_error_page' );
 add_action( 'init', 'sg_create_subscribe_missing_token_error_page' );
+add_action( 'init', 'sg_create_subscribe_invalid_token_error_page' );
+add_action( 'init', 'sg_create_subscribe_success_page' );
+add_action( 'init', 'sg_create_validation_required_page' );
 add_action( 'init', 'sg_create_subscribe_invalid_token_error_page' );
 add_action( 'init', 'sg_create_subscribe_success_page' );
 add_action( 'init', 'sg_register_shortcodes' );

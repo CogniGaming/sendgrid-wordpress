@@ -15,7 +15,8 @@ class Sendgrid_SMTP implements Sendgrid_Send {
   private $port;
   private $username;
   private $password;
-
+  protected $logger;
+  
   public function __construct( $username, $password ) {
     /* check for SwiftMailer,
      * if it doesn't exist, try loading
@@ -51,14 +52,24 @@ class Sendgrid_SMTP implements Sendgrid_Send {
     $swift = $this->get_swift_instance($this->port);
 
     $message = $this->map_to_swift( $mail );
+    $count = 0;
+    $sent = 0;
+    $failures = [];
 
-    try
-    {
-      $sent = $swift->send( $message, $failures );
-    }
-    catch(Exception $e)
-    {
-      return false;
+    while ( !$sent && $count < 3 ) {
+      $count++;
+      try
+      {
+        $sent = $swift->send( $message, $failures );
+      }
+      catch( Exception $e )
+      {
+        file_put_contents(
+          '/var/log/sendgrid.log',
+          date( 'Y-m-d H:i:s' ).' '.$e->getMessage().': '.$mail->getSubject().PHP_EOL.$this->logger->dump().PHP_EOL,
+          FILE_APPEND | LOCK_EX
+        );
+      }
     }
 
     return ( $sent === 0 ) ? false : true;
@@ -75,6 +86,8 @@ class Sendgrid_SMTP implements Sendgrid_Send {
       $transport->setPassword( $this->password );
 
       $swift = \Swift_Mailer::newInstance( $transport );
+      $this->logger = new \Swift_Plugins_Loggers_ArrayLogger();
+      $swift->registerPlugin(new \Swift_Plugins_LoggerPlugin($this->logger));
 
       $this->swift_instances[$port] = $swift;
     }

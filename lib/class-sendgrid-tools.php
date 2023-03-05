@@ -890,6 +890,136 @@ class Sendgrid_Tools
     return $response;
   }
 
+	  /**
+   * Sets form title in the database
+   *
+   * @param   type  string  $form_title
+   *
+   * @return  bool
+   */
+  public static function set_mc_form_title( $form_title )
+  {
+      return Sendgrid_Tools::update_sendgrid_option( 'mc_form_title', $form_title );
+  }
+
+  /**
+   * Return form title from the database or global variable
+   *
+   * @return  mixed  , false if the value is not found
+   */
+  public static function get_mc_form_title()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_TITLE' ) ) {
+      return SENDGRID_MC_FORM_TITLE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_title' );
+    }
+  }
+  
+  /**
+   * Sets form message in the database
+   *
+   * @param   type  string  $form_message
+   *
+   * @return  bool
+   */
+  public static function set_mc_form_message( $form_message )
+  {
+      return Sendgrid_Tools::update_sendgrid_option( 'mc_form_message', $form_message );
+  }
+
+  /**
+   * Return form message from the database or global variable
+   *
+   * @return  mixed  , false if the value is not found
+   */
+  public static function get_mc_form_message()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_message' );
+    }
+  }
+
+  /**
+   * Sets form error message in the database
+   *
+   * @param   type  string  $form_error_message
+   *
+   * @return  bool
+   */
+  public static function set_mc_form_error_message( $form_error_message )
+  {
+      return Sendgrid_Tools::update_sendgrid_option( 'mc_form_error_message', $form_error_message );
+  }
+
+  /**
+   * Return form error message from the database or global variable
+   *
+   * @return  mixed, false if the value is not found
+   */
+  public static function get_mc_form_error_message()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_ERROR_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_ERROR_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_error_message' );
+    }
+  }
+
+  /**
+   * Sets form email error message in the database
+   *
+   * @param   type  string  $form_email_message
+   *
+   * @return  bool
+   */
+  public static function set_mc_form_email_error_message( $form_email_error_message )
+  {
+      return Sendgrid_Tools::update_sendgrid_option( 'mc_form_email_error_message', $form_email_error_message );
+  }
+
+  /**
+   * Return form email message from the database or global variable
+   *
+   * @return  mixed, false if the value is not found
+   */
+  public static function get_mc_form_email_error_message()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_EMAIL_ERROR_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_EMAIL_ERROR_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_email_error_message' );
+    }
+  }
+
+  /**
+   * Sets form subscribe message in the database
+   *
+   * @param   type  string  $form_subscribe_message
+   *
+   * @return  bool
+   */
+  public static function set_mc_form_subscribe_message( $form_subscribe_message )
+  {
+      return Sendgrid_Tools::update_sendgrid_option( 'mc_form_subscribe_message', $form_subscribe_message );
+  }
+
+  /**
+   * Return form subscribe message from the database or global variable
+   *
+   * @return  mixed, false if the value is not found
+   */
+  public static function get_mc_form_subscribe_message()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_SUBSCRIBE_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_SUBSCRIBE_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_subscribe_message' );
+    }
+  }
+	
   /**
    * Sets the content-type in the database
    *
@@ -1007,133 +1137,57 @@ class Sendgrid_Tools
   }
 
   /**
-   * Sets input padding in the database
+   * Sets form fname error message in the database
    *
-   * @param   type  string  $position
-   * @param   type  int     $value
-   *
-   * @return  bool
-   */
-  public static function set_mc_input_padding( $position, $value = 0 )
-  {
-    if ( "" == $value ) {
-      $value = 0;
-    }
-    $values = json_decode( self::get_mc_input_padding(), true ) ;
-    if ( !isset( $values ) or !is_array($values) ) {
-      $values = array(
-        'top'     => 10,
-        'right'   => 0,
-        'bottom'  => 0,
-        'left'    => 0
-      );
-    }
-
-    // set the new value
-    $values[$position] = $value;
-
-    return Sendgrid_Tools::update_sendgrid_option( 'mc_input_padding', json_encode( $values ) );
-  }
-
-  /**
-   * Return input padding by from the database
-   *
-   * @return  mixed   json with the padding value, false if the value is not found
-   */
-  public static function get_mc_input_padding()
-  {
-    return Sendgrid_Tools::get_sendgrid_option( 'mc_input_padding' );
-  }
-
-  /**
-   * Return input padding by position from the database
-   *
-   * @param   string    $position       position
-   * @return  integer                   padding value
-   */
-  public static function get_mc_input_padding_by_position( $position )
-  {
-    $padding = Sendgrid_Tools::get_sendgrid_option( 'mc_input_padding' );
-
-    if ( false == $padding ) {
-      if ( $position == "top" ) {
-        return 10;
-      }
-
-      return 0;
-    }
-    $padding = json_decode( $padding, true );
-    if ( !isset( $padding[$position] ) ) {
-      return 0;
-    }
-
-    return $padding[$position];
-  }
-
-  /**
-   * Sets button padding in the database
-   *
-   * @param   type  string  $position
-   * @param   type  int     $value
+   * @param   type  string  $form_fname_error_message
    *
    * @return  bool
    */
-  public static function set_mc_button_padding( $position, $value = 0 )
+  public static function set_mc_form_fname_error_message( $form_fname_error_message )
   {
-    if ( "" == $value ) {
-      $value = 0;
-    }
-    $values = json_decode( self::get_mc_button_padding(), true );
-    if ( !isset( $values ) or !is_array($values) ) {
-      $values = array(
-        'top'     => 10,
-        'right'   => 0,
-        'bottom'  => 0,
-        'left'    => 0
-      );
-    }
-
-    // set the new value
-    $values[$position] = $value;
-
-    return Sendgrid_Tools::update_sendgrid_option( 'mc_button_padding', json_encode( $values ) );
+    return Sendgrid_Tools::update_sendgrid_option( 'mc_form_fname_error_message', $form_fname_error_message );
   }
 
   /**
-   * Return button padding by from the database
+   * Return form fname error message from the database or global variable
    *
-   * @return  mixed   json with the padding value, false if the value is not found
+   * @return  mixed   label, false if the value is not found
    */
-  public static function get_mc_button_padding()
+  public static function get_mc_form_fname_error_message()
   {
-    return Sendgrid_Tools::get_sendgrid_option( 'mc_button_padding' );
+    if ( defined( 'SENDGRID_MC_FORM_FNAME_ERROR_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_FNAME_ERROR_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_fname_error_message' );
+    }
   }
 
   /**
-   * Return button padding by position from the database
+   * Sets form sname error message in the database
    *
-   * @param   string    $position   position
-   * @return  integer               padding value
+   * @param   type  string  $form_sname_error_message
+   *
+   * @return  bool
    */
-  public static function get_mc_button_padding_by_position( $position )
+  public static function set_mc_form_sname_error_message( $form_sname_error_message )
   {
-    $padding = Sendgrid_Tools::get_sendgrid_option( 'mc_button_padding' );
-
-    if ( false == $padding ) {
-      if ( $position == "top" )
-      {
-        return 10;
-      }
-
-      return 0;
-    }
-    $padding = json_decode( $padding, true );
-    if ( !isset( $padding[$position] ) ) {
-      return 0;
-    }
-
-    return $padding[$position];
+    return Sendgrid_Tools::update_sendgrid_option( 'mc_form_sname_error_message', $form_sname_error_message );
   }
+
+  /**
+   * Return form sname error message from the database or global variable
+   *
+   * @return  mixed   label, false if the value is not found
+   */
+  public static function get_mc_form_sname_error_message()
+  {
+    if ( defined( 'SENDGRID_MC_FORM_SNAME_ERROR_MESSAGE' ) ) {
+      return SENDGRID_MC_FORM_SNAME_ERROR_MESSAGE;
+    } else {
+      return Sendgrid_Tools::get_sendgrid_option( 'mc_form_sname_error_message' );
+    }
+  }
+	
 
   /**
    * Check apikey stats permissions
@@ -1161,10 +1215,12 @@ class Sendgrid_Tools
 
     $check_scopes = Sendgrid_Tools::check_api_key_scopes( $apikey, $required_scopes );
 
+    self::set_transient_sendgrid( self::CHECK_API_KEY_STATS_CACHE_KEY, self::VALID_CREDENTIALS_STATUS, 2 * HOUR_IN_SECONDS );
+
     // set cache
-    if ( $check_scopes ) {
+    /**if ( $check_scopes ) {
       self::set_transient_sendgrid( self::CHECK_API_KEY_STATS_CACHE_KEY, self::VALID_CREDENTIALS_STATUS, 2 * 60 * 60 );
-    }
+    }**/
 
     return $check_scopes;
   }
@@ -1178,8 +1234,7 @@ class Sendgrid_Tools
    */
   public static function check_api_key_mc( $apikey )
   {
-    $required_scopes = array( 'marketing_campaigns.create', 'marketing_campaigns.read', 'marketing_campaigns.update', 'marketing_campaigns.delete' );
-
+    $required_scopes = array( 'marketing.read' );
     return Sendgrid_Tools::check_api_key_scopes( $apikey, $required_scopes );
   }
 
@@ -1263,7 +1318,15 @@ class Sendgrid_Tools
 
             break;
           case 'reply-to':
-            if( ! Sendgrid_Tools::is_valid_email( $content ) ) {
+            if ( false !== strpos( $content, '<' ) ) {
+              $from_email = substr( $content, strpos( $content, '<' ) + 1 );
+              $from_email = str_replace( '>', '', $from_email );
+              $from_email = trim( $from_email );
+            } else {
+              $from_email = trim( $content );
+            }
+
+            if( ! Sendgrid_Tools::is_valid_email( $from_email ) ) {
               return false;
             }
 
