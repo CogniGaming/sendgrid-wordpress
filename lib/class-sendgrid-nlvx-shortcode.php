@@ -73,12 +73,6 @@ class SendGrid_NLVX_Shortcode {
 			} elseif ( self::INVALID_EMAIL_ERROR == $process_form_reponse ) {
 			  $form_html .=  $this->display_form_small($title);
 			  $form_html .=  '<p class="sendgrid_widget_text sendgrid_widget_error"> ' . $error_email_text . ' </p>';
-			} elseif ( self::INVALID_FNAME_ERROR == $process_form_reponse ) {
-			  $form_html .=  $this->display_form_small($title);
-			  $form_html .=  '<p class="sendgrid_widget_text sendgrid_widget_error"> ' . $error_fname_text . ' </p>';
-			} elseif ( self::INVALID_SNAME_ERROR == $process_form_reponse ) {
-			  $form_html .=  $this->display_form_small($title);
-			  $form_html .=  '<p class="sendgrid_widget_text sendgrid_widget_error"> ' . $error_sname_text . ' </p>';
 			} else  {
 			  $form_html .=   $this->display_form_small($title);
 			  $form_html .=  '<p class="sendgrid_widget_text sendgrid_widget_error"> ' . $error_text . ' </p>';
@@ -302,12 +296,12 @@ class SendGrid_NLVX_Shortcode {
 		  
         $form_html .= '<div class="sendgrid_mc_fields">';
         $form_html .= '  <div class="sendgrid_mc_input_div">';
-        $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_first_name" id="sendgrid_mc_first_name" name="sendgrid_mc_first_name" type="text" placeholder="' . $first_name_label . '" value=""' . $fname . ' />';
+        $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_first_name" id="sendgrid_mc_first_name" name="sendgrid_mc_first_name" type="text" title="' . $first_name_label . '" placeholder="' . $first_name_label . '" value=""' . $fname . ' />';
         $form_html .= '  </div>';
         $form_html .= '</div>';
         $form_html .= '<div class="sendgrid_mc_fields">';
         $form_html .= '  <div class="sendgrid_mc_input_div">';
-        $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_last_name" id="sendgrid_mc_last_name" name="sendgrid_mc_last_name" type="text" placeholder="' . $last_name_label . '" value="" ' . $sname . '/>';
+        $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_last_name" id="sendgrid_mc_last_name" name="sendgrid_mc_last_name" type="text" title="' . $last_name_label . '" placeholder="' . $last_name_label . '" value="" ' . $sname . '/>';
         $form_html .= '  </div>';
         $form_html .= '</div>';
       }
@@ -319,7 +313,7 @@ class SendGrid_NLVX_Shortcode {
 		
       $form_html .= '<div class="sendgrid_mc_fields">';
       $form_html .= '  <div class="sendgrid_mc_input_div">';
-      $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_email" id="sendgrid_mc_email" name="sendgrid_mc_email" type="text" placeholder="' . $email_label . '" value="'. $email . '" required/>';
+      $form_html .= '    <input class="sendgrid_mc_input sendgrid_mc_input_email" id="sendgrid_mc_email" name="sendgrid_mc_email" type="text" title="' . $email_label . '" placeholder="' . $email_label . '" value="'. $email . '" required/>';
       $form_html .= '  </div>';
       $form_html .= '</div>';
 
@@ -338,7 +332,11 @@ class SendGrid_NLVX_Shortcode {
      * @return  void
      */
     private function display_form_small($title) {
-      
+      $email_label = stripslashes( Sendgrid_Tools::get_mc_email_label() );
+      if ( false == $email_label ) {
+        $email_label = Sendgrid_Settings::DEFAULT_EMAIL_LABEL;
+      }
+
       $subscribe_label = stripslashes( Sendgrid_Tools::get_mc_subscribe_label() );
       if ( false == $subscribe_label ) {
         $subscribe_label = Sendgrid_Settings::DEFAULT_SUBSCRIBE_LABEL;
@@ -351,8 +349,8 @@ class SendGrid_NLVX_Shortcode {
 		$email = $_POST['sendgrid_mc_email'];
 	  }
 		
-      $form_html .= '  <input id="sendgrid_mc_email" name="sendgrid_mc_email" type="text" placeholder="' . $title . '" value="'. $email . '" required/>';     
-      $form_html .= '  <input type="submit" id="sendgrid_mc_email_submit" value="' . $subscribe_label . '" />';
+      $form_html .= '  <input id="sendgrid_mc_email" name="sendgrid_mc_email" type="text" placeholder="' . $title . '" title="' . $email_label . '" value="'. $email . '" required/>';     
+      $form_html .= '  <input type="submit" id="sendgrid_mc_email_submit" title="' . $subscribe_label . '" value="' . $subscribe_label . '" />';
       $form_html .= '</form>';
 
       return $form_html;
