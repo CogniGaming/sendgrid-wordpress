@@ -60,10 +60,7 @@ class Sendgrid_NLVX
     }
 
     $lists_response = json_decode($response['body'], true);
-	  
-	error_log($response['body']);
-	error_log(json_encode($lists_response['result']));  
-		
+	  		
     if ( isset( $lists_response['result'] ) ) {
       return $lists_response['result'];
     }
@@ -155,9 +152,7 @@ class Sendgrid_NLVX
     }
 
     $recipient_id = Sendgrid_NLVX::add_recipient($email, $list_id, $first_name, $last_name);
-	  
-	  error_log('Recipient: ' . $recipient_id );
-	  
+	  	  
     if ( false == $recipient_id ) {
       return false;
     }

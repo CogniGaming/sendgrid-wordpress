@@ -78,9 +78,6 @@ if ( ! class_exists( 'SGVirtualPage' ) )
       unset( $wp_query->query['error'] );
       $wp_query->query_vars['error'] = '';
       $wp_query->is_404              = false;
-
-		
-		error_log(json_encode($posts));
 		
       return ( $posts );
     }

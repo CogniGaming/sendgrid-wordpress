@@ -53,8 +53,6 @@ class Sendgrid_API implements Sendgrid_Send {
     // Send the request
     $response = wp_remote_post( self::URL, $data );
 
-	error_log(json_encode( $response));
-	  
     // Check that the response fields are set
     if ( !is_array( $response ) or
       !isset( $response['response'] ) or
